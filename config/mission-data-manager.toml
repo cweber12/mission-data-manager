@@ -13,3 +13,6 @@ cold_root = "data/cold"
 
 [rules]
 file = "config/rules.yaml"
+
+[scheduler] 
+interval_seconds=60

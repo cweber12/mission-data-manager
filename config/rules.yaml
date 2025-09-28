@@ -1,0 +1,8 @@
+# config/rules.yaml
+rules:
+  - name: "Age-based cold storage"
+    when: { older_than_days: 90 }
+    then: { set_storage_tier: COLD }
+  - name: "Immediate cold for SECRET"
+    when: { tag_equals: { key: classification, value: SECRET } }
+    then: { set_storage_tier: COLD }
