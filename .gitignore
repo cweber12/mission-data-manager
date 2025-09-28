@@ -1,0 +1,64 @@
+# --- OS cruft ---
+.DS_Store
+Thumbs.db
+
+# --- Editors/IDEs ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.code-workspace
+
+# --- Visual Studio ---
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+ipch/
+*.opendb
+*.idb
+*.pdb
+*.ilk
+
+# --- CMake / build outputs ---
+build/
+build-*/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+Testing/
+Makefile
+*.ninja
+*.ninja_log
+*.ninja_deps
+compile_commands.json
+
+# --- Binaries / objects ---
+*.exe
+*.dll
+*.lib
+*.obj
+*.o
+*.a
+*.so
+*.dylib
+*.exp
+*.pch
+*.log
+
+# --- Data (SQLite DBs) ---
+/data/
+!data/.gitkeep
+*.db
+*.db-wal
+*.db-shm
+
+# --- vcpkg (if using as a submodule in external/vcpkg) ---
+external/vcpkg/buildtrees/
+external/vcpkg/downloads/
+external/vcpkg/packages/
+external/vcpkg/installed/
