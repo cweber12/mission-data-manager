@@ -230,6 +230,101 @@ void run_http_server(MetadataStore& store,
     res.set_content(out.dump(), "application/json");
   });
 
+  // POST /ingest/meta
+  // Body: application/json with metadata only (no file bytes)
+  // Example body:
+  // {
+  //   "mission_id": "mission-20250927-120000",
+  //   "logical_name": "telemetry.jsonl",
+  //   "object_type": "telemetry",
+  //   "content_type": "application/x-ndjson",
+  //   "capture_time": 1695800000,
+  //   "size_bytes": 123456,
+  //   "sha256": "optional full sha256 of local file",
+  //   "storage_tier": "LOCAL",              // optional; default LOCAL
+  //   "storage_path": "missions/.../telemetry.jsonl",  // optional; rel/path string
+  //   "pipeline_run_id": "ci-123",
+  //   "tags": {"segment":"ground","env":"dev"}
+  // }
+
+  svr.Post("/ingest/meta", [&](const httplib::Request& req, httplib::Response& res) {
+  if (!check_api_key(req, apiKey, res)) return;
+
+  if (req.body.empty()) {
+      res.status = 400; res.set_content("empty body", "text/plain"); return;
+  }
+  json j;
+  try { j = json::parse(req.body); }
+  catch (...) { res.status = 400; res.set_content("invalid JSON", "text/plain"); return; }
+
+  auto get_s     = [&](const char* k, const std::string& def = std::string()) {
+      return (j.contains(k) && j[k].is_string()) ? j[k].get<std::string>() : def;
+  };
+  auto get_i64   = [&](const char* k, int64_t def) {
+      if (j.contains(k) && j[k].is_number_integer()) return j[k].get<int64_t>();
+      return def;
+  };
+  auto get_obj   = [&](const char* k) -> json {
+      return (j.contains(k) && j[k].is_object()) ? j[k] : json::object();
+  };
+  
+  const std::string mission_id     = get_s("mission_id");
+  if (mission_id.empty()) { res.status = 422; res.set_content("metadata.mission_id required", "text/plain"); return; }
+  
+  const std::string id             = get_s("id", uuid4());
+  const std::string logical_name   = get_s("logical_name", "artifact");
+  const std::string object_type    = get_s("object_type", "");
+  const std::string content_type   = get_s("content_type", "application/octet-stream");
+  const std::string sensor         = get_s("sensor", "");
+  const std::string platform       = get_s("platform", "");
+  const std::string classification = get_s("classification", "UNCLASS");
+  const std::string pipeline_run_id= get_s("pipeline_run_id", "");
+  const std::string storage_tier   = get_s("storage_tier", "LOCAL");
+  const std::string storage_path   = get_s("storage_path", ""); // e.g., missions/<id>/<file>
+  const int64_t     capture_time   = get_i64("capture_time", static_cast<int64_t>(std::time(nullptr)));
+  const int64_t     size_bytes     = get_i64("size_bytes", 0);
+  const std::string sha256         = get_s("sha256", "");       // optional; may be blank
+  const json        tags           = get_obj("tags");
+ 
+  // Build a DB record without putting bytes into HOT storage
+  const int64_t now = static_cast<int64_t>(std::time(nullptr));
+  ObjectRecord rec {
+      /*id*/             id,
+      /*logical_name*/   logical_name,
+      /*mission_id*/     mission_id,
+      /*sensor*/         sensor,
+      /*platform*/       platform,
+      /*classification*/ classification,
+      /*tags_json*/      tags.dump(),
+      /*bytes*/          size_bytes,
+      /*sha256*/         sha256,
+      /*storage_tier*/   storage_tier,     // e.g., LOCAL (on-ground), or VIRTUAL/INDEX
+      /*storage_path*/   storage_path,     // relative hint/path if you want to keep it
+      /*created_at*/     now,
+      /*updated_at*/     now,
+      /*object_type*/    object_type,
+      /*content_type*/   content_type,
+      /*capture_time*/   capture_time,
+      /*pipeline_run_id*/pipeline_run_id
+  };
+ 
+  try {
+      store.insertObject(rec);
+      store.appendHistory(id, "INDEXED", json({{"source","/ingest/meta"}}).dump(), now, "api");
+  } catch (const std::exception& e) {
+      spdlog::error("insert failed (/ingest/meta): {}", e.what());
+      res.status = 500; res.set_content("insert failed", "text/plain"); return;
+  }
+ 
+  json out = {
+      {"id", id},
+      {"storage_tier", storage_tier},
+      {"storage_path", storage_path}
+  };
+  res.status = 200;
+  res.set_content(out.dump(), "application/json");
+  });
+
   // Fallback
   svr.set_error_handler([](const httplib::Request&, httplib::Response& res) {
     if (res.status == 404) res.set_content("not found", "text/plain");
