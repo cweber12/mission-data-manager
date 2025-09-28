@@ -57,7 +57,7 @@ target_link_libraries(mdm
 
 # Windows sockets for cpp-httplib (MUST be after add_executable)
 if (WIN32)
-  target_link_libraries(mdm PRIVATE ws2_32)
+  target_link_libraries(mdm PRIVATE ws2_32 bcrypt)
 endif()
 
 # Copy schema.sql next to the exe (Debug/Release)
