@@ -246,7 +246,6 @@ void run_http_server(MetadataStore& store,
   //   "pipeline_run_id": "ci-123",
   //   "tags": {"segment":"ground","env":"dev"}
   // }
-
   svr.Post("/ingest/meta", [&](const httplib::Request& req, httplib::Response& res) {
   if (!check_api_key(req, apiKey, res)) return;
 
