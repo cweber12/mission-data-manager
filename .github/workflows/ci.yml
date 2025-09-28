@@ -12,16 +12,17 @@ jobs:
       VCPKG_ROOT: C:\vcpkg
       BUILD_DIR: build
       BUILD_TYPE: Release
+      EXE_DIR: build\Release
       DB_PATH: ${{ github.workspace }}\data\mission-metadata.db
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Ninja + sqlite CLI
+      - name: Install sqlite CLI
         shell: pwsh
         run: |
-          choco install ninja sqlite -y
+          choco install sqlite -y
 
       - name: Install vcpkg
         shell: pwsh
@@ -37,11 +38,10 @@ jobs:
             C:\vcpkg\downloads\
           key: vcpkg-${{ runner.os }}-x64-windows-${{ hashFiles('vcpkg.json') }}
 
-      - name: Configure (CMake + vcpkg toolchain, Ninja)
+      - name: Configure (CMake + vcpkg toolchain, Visual Studio)
         shell: pwsh
         run: |
-          & "C:\Program Files\CMake\bin\cmake.exe" -S . -B $env:BUILD_DIR -G Ninja `
-            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
+          & "C:\Program Files\CMake\bin\cmake.exe" -S . -B $env:BUILD_DIR -G "Visual Studio 17 2022" -A x64 `
             -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT\scripts\buildsystems\vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows `
             -DVCPKG_MANIFEST_MODE=ON
@@ -51,14 +51,14 @@ jobs:
         run: |
           & "C:\Program Files\CMake\bin\cmake.exe" --build $env:BUILD_DIR --config $env:BUILD_TYPE
 
-      - name: Ensure schema next to mdm
+      - name: Ensure schema next to mdm (belt & suspenders)
         shell: pwsh
         run: |
-          Copy-Item -Force src/core/metadata/schema.sql "$env:BUILD_DIR\schema.sql"
+          Copy-Item -Force src/core/metadata/schema.sql "$env:EXE_DIR\schema.sql"
 
       - name: Initialize DB (mdm --init)
         shell: pwsh
-        working-directory: ${{ env.BUILD_DIR }}
+        working-directory: ${{ env.EXE_DIR }}
         run: |
           New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\data" | Out-Null
           $env:MDM_DB_PATH = "${{ env.DB_PATH }}"
