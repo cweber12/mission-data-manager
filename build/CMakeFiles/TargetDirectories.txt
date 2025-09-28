@@ -1,4 +1,0 @@
-C:/Projects/mission-data-manager/build/CMakeFiles/mdm_core.dir
-C:/Projects/mission-data-manager/build/CMakeFiles/mdm.dir
-C:/Projects/mission-data-manager/build/CMakeFiles/ALL_BUILD.dir
-C:/Projects/mission-data-manager/build/CMakeFiles/ZERO_CHECK.dir
