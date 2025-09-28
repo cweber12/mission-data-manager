@@ -1,0 +1,75 @@
+Detecting compiler hash for triplet x64-windows...
+Compiler found: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe
+The following packages will be built and installed:
+  * brotli:x64-windows@1.1.0#1
+    cpp-httplib[brotli,core]:x64-windows@0.26.0
+  * fmt:x64-windows@12.0.0
+    nlohmann-json:x64-windows@3.12.0#1
+    spdlog:x64-windows@1.15.3
+    sqlite3[core,fts5,json1]:x64-windows@3.50.4
+  * vcpkg-cmake:x64-windows@2024-04-23
+  * vcpkg-cmake-config:x64-windows@2024-05-23
+Additional packages (*) will be modified to complete this operation.
+Restored 8 package(s) from C:\Users\coled\AppData\Local\vcpkg\archives in 184 ms. Use --debug to see more details.
+Installing 1/8 vcpkg-cmake-config:x64-windows@2024-05-23...
+Elapsed time to handle vcpkg-cmake-config:x64-windows: 2.86 ms
+vcpkg-cmake-config:x64-windows package ABI: 1bdedb8a6d494b62224171dae9d99008f68445c4b32178cb57b80c7f68ba2f09
+Installing 2/8 vcpkg-cmake:x64-windows@2024-04-23...
+Elapsed time to handle vcpkg-cmake:x64-windows: 42.5 ms
+vcpkg-cmake:x64-windows package ABI: 0090522d834cc206f7ba8a87a99d4c357912e657267fdb87c73e8fb6d8463ffe
+Installing 3/8 brotli:x64-windows@1.1.0#1...
+Elapsed time to handle brotli:x64-windows: 8.95 ms
+brotli:x64-windows package ABI: 10ac187c6baf8d013951ac0f729d904807480d93a23ad7a6bad492ee6219caaf
+Installing 4/8 cpp-httplib[brotli,core]:x64-windows@0.26.0...
+Elapsed time to handle cpp-httplib:x64-windows: 5.82 ms
+cpp-httplib:x64-windows package ABI: b98728f1c4b2e4a283e7e224ead4e6c79c9359ff44c752df9b4bf34593f68224
+Installing 5/8 nlohmann-json:x64-windows@3.12.0#1...
+Elapsed time to handle nlohmann-json:x64-windows: 11.1 ms
+nlohmann-json:x64-windows package ABI: 6d5913dac721deb90e387a7a8c58ed75bd097ab56a26a984715adb3f5f05ae9a
+Installing 6/8 fmt:x64-windows@12.0.0...
+Elapsed time to handle fmt:x64-windows: 7.62 ms
+fmt:x64-windows package ABI: 5abe96cbc175702ced2e9b8001a67f4c344a816b9ebc22fe028f2dbe83ba1305
+Installing 7/8 spdlog:x64-windows@1.15.3...
+Elapsed time to handle spdlog:x64-windows: 17.1 ms
+spdlog:x64-windows package ABI: 6c48a1582f531e83afab8c64a6756d4c1da601f86277ed8ad0d4da6c0105ebdb
+Installing 8/8 sqlite3[core,fts5,json1]:x64-windows@3.50.4...
+Elapsed time to handle sqlite3:x64-windows: 9.47 ms
+sqlite3:x64-windows package ABI: 135024317b3214ac0858d85bbbe6a8bd326042dc92e4f2c198c1aa363486245b
+Installed contents are licensed to you by owners. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+Packages installed in this vcpkg installation declare the following licenses:
+MIT
+blessing
+cpp-httplib provides CMake targets:
+
+    find_package(httplib CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE httplib::httplib)
+
+The package nlohmann-json provides CMake targets:
+
+    find_package(nlohmann_json CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json)
+
+The package nlohmann-json can be configured to not provide implicit conversions via a custom triplet file:
+
+    set(nlohmann-json_IMPLICIT_CONVERSIONS OFF)
+
+For more information, see the docs here:
+    
+    https://json.nlohmann.me/api/macros/json_use_implicit_conversions/
+
+The package spdlog provides CMake targets:
+
+    find_package(spdlog CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE spdlog::spdlog)
+
+    # Or use the header-only version
+    find_package(spdlog CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE spdlog::spdlog_header_only)
+
+sqlite3 provides pkgconfig bindings.
+sqlite3 provides CMake targets:
+
+    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
+
+All requested installations completed successfully in: 108 ms

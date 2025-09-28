@@ -1,0 +1,15 @@
+# config/mission-data-manager.toml
+[db]
+sqlite_path = "data/mission-metadata.db"
+
+[server]
+bind = "0.0.0.0"
+port = 8080
+api_keys = ["dev-key-123"]
+
+[storage]
+hot_root  = "data/hot"
+cold_root = "data/cold"
+
+[rules]
+file = "config/rules.yaml"
