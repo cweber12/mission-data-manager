@@ -21,9 +21,20 @@ find_package(httplib CONFIG REQUIRED)
 # ----------------------------
 if (MSVC)
   add_compile_options(/W4 /permissive- /utf-8)
-  add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN _CRT_SECURE_NO_WARNINGS)
+  add_compile_definitions(
+    NOMINMAX
+    WIN32_LEAN_AND_MEAN
+    _CRT_SECURE_NO_WARNINGS
+    _WIN32_WINNT=0x0A00  # Windows 10
+    WINVER=0x0A00
+  )
 else()
   add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# On Windows also link winsock (you already have this):
+if (WIN32)
+  target_link_libraries(mdm PRIVATE ws2_32)
 endif()
 
 # ----------------------------
