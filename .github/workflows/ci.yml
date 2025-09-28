@@ -2,7 +2,7 @@ name: CI (build + DB schema check)
 
 on:
   push:
-    branches: [ "**" ]
+    branches: ["**"]
   pull_request:
 
 jobs:
@@ -37,12 +37,12 @@ jobs:
             C:\vcpkg\downloads\
           key: vcpkg-${{ runner.os }}-x64-windows-${{ hashFiles('vcpkg.json') }}
 
-      - name: Configure (CMake + vcpkg toolchain)
+      - name: Configure (CMake + vcpkg toolchain, Ninja)
         shell: pwsh
         run: |
           & "C:\Program Files\CMake\bin\cmake.exe" -S . -B $env:BUILD_DIR -G Ninja `
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
-            -DCMAKE_TOOLCHAIN_FILE="${{ env.VCPKG_ROOT }}\scripts\buildsystems\vcpkg.cmake" `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT\scripts\buildsystems\vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET=x64-windows `
             -DVCPKG_MANIFEST_MODE=ON
 
@@ -51,18 +51,24 @@ jobs:
         run: |
           & "C:\Program Files\CMake\bin\cmake.exe" --build $env:BUILD_DIR --config $env:BUILD_TYPE
 
-      - name: Initialize DB (mdm --init)
+      - name: Ensure schema next to mdm
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path data | Out-Null
-          $env:MDM_DB_PATH = "$env:DB_PATH"
-          & "$env:BUILD_DIR\mdm.exe" --init
+          Copy-Item -Force src/core/metadata/schema.sql "$env:BUILD_DIR\schema.sql"
+
+      - name: Initialize DB (mdm --init)
+        shell: pwsh
+        working-directory: ${{ env.BUILD_DIR }}
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\data" | Out-Null
+          $env:MDM_DB_PATH = "${{ env.DB_PATH }}"
+          .\mdm.exe --init
 
       - name: Verify DB tables
         shell: pwsh
         run: |
-          if (-not (Test-Path "$env:DB_PATH")) { throw "DB not created: $env:DB_PATH" }
-          $tables = & sqlite3 "$env:DB_PATH" ".tables"
+          if (-not (Test-Path "${{ env.DB_PATH }}")) { throw "DB not created: $env:DB_PATH" }
+          $tables = & sqlite3 "${{ env.DB_PATH }}" ".tables"
           Write-Host "Tables:`n$tables"
           if ($tables -notmatch '\bobjects\b' -or $tables -notmatch '\bobject_history\b') {
             throw "Required tables missing (objects/object_history)."
